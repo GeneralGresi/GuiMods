@@ -1,3 +1,7 @@
+Custom Changes:
+	Added function to alert if generator is not detected running (State = 'R')
+	Generator Page translated to German
+
 Recent changes:
 	Replace Multi LEDs with text describing the indicator's funciton
 
