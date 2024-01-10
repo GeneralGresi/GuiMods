@@ -298,6 +298,7 @@ class StartStop(object):
 
 		# One second per retry
 		self.RETRIES_ON_ERROR = 300
+		self.ERROR_TIMEOUT = 60
 		self._testrun_soc_retries = 0
 		self._last_counters_check = 0
 
@@ -741,7 +742,7 @@ class StartStop(object):
 		self._acInIsGenerator = False	# covers all conditions that result in a return
 
 		state = self._dbusservice['/State']
-		if state in [States.STOPPED, States.COOLDOWN, States.WARMUP]:
+		if state in [States.STOPPED, States.STOPPING, States.COOLDOWN]: #States.WARMUP
 			self._reset_acpower_inverter_input()
 			return
 
@@ -760,7 +761,7 @@ class StartStop(object):
 		activein_connected = activein_state == 1
 
 #### GuiMods warm-up / cool-down
-		if self._settings['nogeneratoratacinalarm'] == 0:
+		if self._settings['nogeneratoratacinalarm'] == 0 and self._dbusservice['/GeneratorRunningState'] == 'R':
 			processAlarm = False
 			self._reset_acpower_inverter_input()
 		else:
@@ -777,7 +778,7 @@ class StartStop(object):
 		elif not processAlarm:
 			self._reset_acpower_inverter_input()
 			return
-		elif self._acpower_inverter_input['timeout'] < self.RETRIES_ON_ERROR:
+		elif self._acpower_inverter_input['timeout'] < self.ERROR_TIMEOUT:
 			self._acpower_inverter_input['timeout'] += 1
 		elif not self._acpower_inverter_input['unabletostart']:
 			self._acpower_inverter_input['unabletostart'] = True
