@@ -54,6 +54,14 @@ OverviewPage {
     property bool showServiceInfo: serviceCounterItem.valid && serviceInterval.valid && serviceInterval.value > 0
 	property bool serviceOverdue: showServiceInfo && serviceCounterItem.value < 0
 
+	property VBusItem startSoc: VBusItem { bind: Utils.path(settingsBindPrefix, "/Soc/StartValue") }
+	property VBusItem stopSoc: VBusItem { bind: Utils.path(settingsBindPrefix, "/Soc/StopValue") }
+	property VBusItem conditionEnabledSoc: VBusItem { bind: Utils.path(settingsBindPrefix, "/Soc/Enabled") }
+
+	property VBusItem startBatVoltage: VBusItem { bind: Utils.path(settingsBindPrefix, "/BatteryVoltage/StartValue") }
+	property VBusItem stopBatVoltage: VBusItem { bind: Utils.path(settingsBindPrefix, "/BatteryVoltage/StopValue") }
+	property VBusItem conditionEnabledBatVoltage: VBusItem { bind: Utils.path(settingsBindPrefix, "/BatteryVoltage/Enabled") }
+
 	title: qsTr("Generator")
 
 	property bool autoStartSelected: false
@@ -328,23 +336,77 @@ OverviewPage {
 	}
 
 	Tile {
-		id: acInTile
-		title: qsTr("GENERATOR POWER")
+		id: autoStartConditionsTile
+		title: qsTr("AutoStart Bedingungen")
 		width: 150
 		height: 136
 		color: "#82acde"
 		anchors { top: imageTile.bottom; left: parent.left }
-		visible: showAcIn
+		visible: autoStart.valid && autoStart.value === 1
 		values:
 		[
-			OverviewAcValuesEnhanced { connection: sys.genset },
+			Rectangle
+			{
+				width: parent.width
+				height: 3
+				color: "transparent"
+			},
 			TileText
 			{
-				width: acInTile.width - 5
-				text: qsTr ("--")
-				font.pixelSize: 22
-				visible: !sys.genset.power.valid
-			}			
+				width: autoStartConditionsTile.width - 5
+				text: {
+					if (conditionEnabledSoc.valid && conditionEnabledSoc.value === 1 && startSoc.valid) {
+						qsTr ("Start SOC: " + startSoc.value + " %")
+					} else {
+						qsTr ("")
+					}
+				}
+			},
+			TileText
+			{
+				width: autoStartConditionsTile.width - 5
+				text: {
+					if (conditionEnabledSoc.valid && conditionEnabledSoc.value === 1 && stopSoc.valid) {
+						qsTr ("Stop SOC: " + stopSoc.value + " %")
+					} else {
+						qsTr ("")
+					}
+				}
+			},
+			TileText
+			{
+				width: autoStartConditionsTile.width - 5
+				text: {
+					if (conditionEnabledBatVoltage.valid && conditionEnabledBatVoltage.value === 1 && startBatVoltage.valid) {
+						qsTr ("Start Bat V: " + startBatVoltage.value.toFixed(1) + " V")
+					} else {
+						qsTr ("")
+					}
+				}
+			},
+			TileText
+			{
+				width: autoStartConditionsTile.width - 5
+				text: {
+					if (conditionEnabledBatVoltage.valid && conditionEnabledBatVoltage.value === 1 && stopBatVoltage.valid) {
+						qsTr ("Stop Bat V: " + stopBatVoltage.value.toFixed(1) + " V")
+					} else {
+						qsTr ("")
+					}
+				}
+			},
+			Rectangle
+			{
+				width: parent.width
+				height: 8
+				color: "transparent"
+			},
+			TileText
+			{
+				width: autoStartConditionsTile.width - 5
+				text: qsTr ("Gresi was here")
+				visible: conditionEnabledSoc.valid && conditionEnabledSoc.value === 1 && startSoc.valid
+			}
 		]
 ////// add power bar graph
         PowerGauge
@@ -369,7 +431,7 @@ OverviewPage {
 		id: alternatorTile
 		title: qsTr("ALTERNATOR POWER")
 		color: "#157894"
-		anchors.fill: acInTile
+		anchors.fill: autoStartConditionsTile
 		visible: showAlternator
 		values:
 		[
@@ -400,7 +462,7 @@ OverviewPage {
 		id: runTimeTile
 		title: qsTr("Laufzeiten")
 		width: 140
-		anchors { top: acInTile.top; bottom: parent.bottom; left: acInTile.right }
+		anchors { top: autoStartConditionsTile.top; bottom: parent.bottom; left: autoStartConditionsTile.right }
 		values: [
 			TileText
 			{
@@ -464,7 +526,7 @@ OverviewPage {
 		bindPrefix: root.bindPrefix
 		focus: root.active && autoStartSelected
 		connected: state.valid
-		tileHeight: acInTile.height / 2
+		tileHeight: autoStartConditionsTile.height / 2
 		anchors {
 			bottom: parent.bottom; bottomMargin: tileHeight
 			left: runTimeTile.right
@@ -478,7 +540,7 @@ OverviewPage {
 		bindPrefix: root.bindPrefix
 		focus: root.active && ! autoStartSelected
 		connected: state.valid
-		tileHeight: acInTile.height / 2
+		tileHeight: autoStartConditionsTile.height / 2
 		anchors {
 			bottom: parent.bottom
 			left: runTimeTile.right
