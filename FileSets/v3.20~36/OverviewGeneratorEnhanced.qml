@@ -272,7 +272,7 @@ OverviewPage {
 					if (!root.state.valid)
 						message = ""
 					else if (externalOverride)
-						message = qsTr("Generatur Fehler? - gestoppt")
+						message = qsTr("Generator Fehler? - gestoppt")
 					else if (root.state.value === 4)
 						message = qsTr("Stoppen")
 					else if (runningBy.value == 0)
