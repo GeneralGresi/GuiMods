@@ -1186,7 +1186,8 @@ class StartStop(object):
 
 	def _start_generator(self, condition):
 		state = self._dbusservice['/State']
-		remote_running = self._get_remote_switch_state()
+		#remote_running = self._get_remote_switch_state()
+		remote_running = state in (States.WARMUP, States.COOLDOWN, States.STOPPING, States.RUNNING)
 
 		# This function will start the generator in the case generator not
 		# already running. When differs, the RunningByCondition is updated
@@ -1225,6 +1226,7 @@ class StartStop(object):
 			if self._dbusservice['/RunningByCondition'] != condition:
 				self.log_info('Generator previously running by %s condition is now running by %s condition'
 							% (self._dbusservice['/RunningByCondition'], condition))
+			self._update_remote_switch()
 #### end GuiMods warm-up / cool-down
 
 
@@ -1233,8 +1235,9 @@ class StartStop(object):
 
 	def _stop_generator(self):
 		state = self._dbusservice['/State']
-		remote_running = self._get_remote_switch_state()
+		#remote_running = self._get_remote_switch_state()
 		running = state in (States.WARMUP, States.COOLDOWN, States.STOPPING, States.RUNNING)
+		remote_running = running
 
 		if running or remote_running:
 #### GuiMods warm-up / cool-down
@@ -1244,6 +1247,7 @@ class StartStop(object):
 			if self._currentTime < self._coolDownEndTime:
 				if state != States.COOLDOWN:
 					self._dbusservice['/State'] = States.COOLDOWN
+					self._update_remote_switch() #Stop charger in Cooldown phase
 					self.log_info ("starting cool-down")
 				return
 
@@ -1331,7 +1335,8 @@ class StartStop(object):
 
 	def _update_remote_switch(self):
 		# Engine should be started in these states
-		v = self._dbusservice['/State'] in (States.RUNNING, States.WARMUP, States.COOLDOWN)
+		# We redefine engine as something else. We have charger connected to the relay, therefor it only needs to be on in the "Running" Condition
+		v = self._dbusservice['/State'] in (States.RUNNING, States.RUNNING) #Two times to keep the datatype
 		self._set_remote_switch_state(dbus.Int32(v, variant_level=1))
 #### GuiMods
 		if v == True:
