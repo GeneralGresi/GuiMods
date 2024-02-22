@@ -54,7 +54,6 @@ OverviewPage {
     property bool showServiceInfo: serviceCounterItem.valid && serviceInterval.valid && serviceInterval.value > 0
 	property bool serviceOverdue: showServiceInfo && serviceCounterItem.value < 0
 
-<<<<<<< HEAD:FileSets/v3.20~42/OverviewGeneratorEnhanced.qml
 	property VBusItem startSoc: VBusItem { bind: Utils.path(settingsBindPrefix, "/Soc/StartValue") }
 	property VBusItem stopSoc: VBusItem { bind: Utils.path(settingsBindPrefix, "/Soc/StopValue") }
 	property VBusItem conditionEnabledSoc: VBusItem { bind: Utils.path(settingsBindPrefix, "/Soc/Enabled") }
@@ -62,14 +61,6 @@ OverviewPage {
 	property VBusItem startBatVoltage: VBusItem { bind: Utils.path(settingsBindPrefix, "/BatteryVoltage/StartValue") }
 	property VBusItem stopBatVoltage: VBusItem { bind: Utils.path(settingsBindPrefix, "/BatteryVoltage/StopValue") }
 	property VBusItem conditionEnabledBatVoltage: VBusItem { bind: Utils.path(settingsBindPrefix, "/BatteryVoltage/Enabled") }
-=======
-//////// add to display AC input ignored
-	VBusItem { id: ignoreAcInput1; bind: Utils.path(sys.vebusPrefix, "/Ac/State/IgnoreAcIn1") }
-	VBusItem { id: ignoreAcInput2; bind: Utils.path(sys.vebusPrefix, "/Ac/State/IgnoreAcIn2") }
-	VBusItem { id: acActiveInput; bind: Utils.path(sys.vebusPrefix, "/Ac/ActiveIn/ActiveInput") }
-	VBusItem { id: ac1source; bind: Utils.path("com.victronenergy.settings", "/Settings/SystemSetup/AcInput1") }
-	VBusItem { id: ac2source; bind: Utils.path("com.victronenergy.settings", "/Settings/SystemSetup/AcInput2") }
->>>>>>> upstream/main:FileSets/v3.30~6/OverviewGeneratorEnhanced.qml
 
 	title: qsTr("Generator")
 
@@ -354,7 +345,6 @@ OverviewPage {
 		visible: autoStart.valid && autoStart.value === 1
 		values:
 		[
-<<<<<<< HEAD:FileSets/v3.20~42/OverviewGeneratorEnhanced.qml
 			Rectangle
 			{
 				width: parent.width
@@ -417,37 +407,6 @@ OverviewPage {
 				text: qsTr ("Gresi was here")
 				visible: conditionEnabledSoc.valid && conditionEnabledSoc.value === 1 && startSoc.valid
 			}
-=======
-			OverviewAcValuesEnhanced
-			{
-				connection: sys.genset
-				visible: sys.genset.power.valid				
-			},
-			TileText
-			{
-				width: acInTile.width - 5
-				text:
-				{
-					if (ac1source.valid && ac1source.value == 2)
-					{
-						if (ignoreAcInput1.valid && ignoreAcInput1.value == 1)
-							return qsTr ("\nAC In Ignored\nduring\ngenerator\nstart / stop")
-						else
-							return ""
-					}
-					else if (ac2source.valid && ac2source.value == 2)
-					{
-						if (ignoreAcInput2.valid && ignoreAcInput2.value == 1)
-							return qsTr ("\nAC In Ignored\nduring\ngenerator\nstart / stop")
-						else
-							return ""
-					}
-					else
-						return qsTr ("\nAC In\nis not\ngenerator")
-				}
-				visible: !sys.genset.power.valid
-			}			
->>>>>>> upstream/main:FileSets/v3.30~6/OverviewGeneratorEnhanced.qml
 		]
 ////// add power bar graph
         PowerGauge
@@ -464,10 +423,9 @@ OverviewPage {
 			useInputCurrentLimit: true
             maxForwardPowerParameter: ""
             maxReversePowerParameter: ""
-            visible: showGauges && sys.genset.power.valid
+            visible: showGauges
         }
 	}
-
 //////// added to show alternator in place of AC generator
 	Tile {
 		id: alternatorTile
