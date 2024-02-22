@@ -1,8 +1,8 @@
-diff --git a/FileSets/v3.20~41/startstop.py b/FileSets/v3.20~41/startstop.py
-index e220c1c..62299d4 100644
---- a/FileSets/v3.20~41/startstop.py
-+++ b/FileSets/v3.20~41/startstop.py
-@@ -298,6 +298,7 @@ class StartStop(object):
+diff --git a/FileSets/v3.30~6/startstop.py b/FileSets/v3.30~6/startstop.py
+index 112bdc0..3ad6712 100644
+--- a/FileSets/v3.30~6/startstop.py
++++ b/FileSets/v3.30~6/startstop.py
+@@ -297,6 +297,7 @@ class StartStop(object):
  
  		# One second per retry
  		self.RETRIES_ON_ERROR = 300
@@ -11,9 +11,9 @@ index e220c1c..62299d4 100644
  		self._last_counters_check = 0
  
 @@ -610,7 +611,7 @@ class StartStop(object):
- 		# update cool down end time while running and generator has the load
  		# this is done because acInIsGenerator may change by an external transfer switch
- 		#	and the input type changed by the ExtTransferSwitch service
+ 		# and we want an accurate picture of the cool down end time
+ 		#	based on the last time the generatot was loaded
 -		if state == States.RUNNING and self._acInIsGenerator:
 +		if state == States.RUNNING:
  			self._coolDownEndTime = self._currentTime + self._settings['cooldowntime']
@@ -64,7 +64,7 @@ index e220c1c..62299d4 100644
  #### end GuiMods warm-up / cool-down
  
  
-@@ -1241,8 +1244,9 @@ class StartStop(object):
+@@ -1242,17 +1245,20 @@ class StartStop(object):
  
  	def _stop_generator(self):
  		state = self._dbusservice['/State']
@@ -75,15 +75,20 @@ index e220c1c..62299d4 100644
  
  		if running or remote_running:
  #### GuiMods warm-up / cool-down
-@@ -1252,6 +1256,7 @@ class StartStop(object):
- 			if self._currentTime < self._coolDownEndTime:
- 				if state != States.COOLDOWN:
- 					self._dbusservice['/State'] = States.COOLDOWN
+ 			if state == States.RUNNING:
+ 				state = States.COOLDOWN
+ 				if self._currentTime < self._coolDownEndTime:
 +					self._update_remote_switch() #Stop charger in Cooldown phase
++					self._dbusservice['/State'] = state
  					self.log_info ("starting cool-down")
- 				return
+-				elif self._settings['cooldowntime'] != 0:
+-					self.log_info ("skipping cool-down -- no AC load on generator")
++				#elif self._settings['cooldowntime'] != 0:
++				#	self.log_info ("skipping cool-down -- no AC load on generator")
  
-@@ -1339,7 +1344,8 @@ class StartStop(object):
+ 			# warm-up should also transition to stopping
+ 			#	cool-down time will have expired since it's set to 0 when starting
+@@ -1331,7 +1337,8 @@ class StartStop(object):
  
  	def _update_remote_switch(self):
  		# Engine should be started in these states
