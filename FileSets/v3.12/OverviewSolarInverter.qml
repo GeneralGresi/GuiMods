@@ -1,1 +1,1 @@
-../v3.20~42/OverviewSolarInverter.qml
+../v3.30~6/OverviewSolarInverter.qml

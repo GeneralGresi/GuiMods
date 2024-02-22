@@ -1,1 +1,1 @@
-../v3.20~42/MbSubMenu.qml
+../v3.30~6/MbSubMenu.qml
