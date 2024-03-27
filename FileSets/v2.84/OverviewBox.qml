@@ -1,1 +1,1 @@
-../v3.30~6/OverviewBox.qml
+../v3.40~1/OverviewBox.qml
