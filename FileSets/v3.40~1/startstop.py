@@ -1237,8 +1237,8 @@ class StartStop(object):
 			if state == States.RUNNING:
 				state = States.COOLDOWN
 				if self._currentTime < self._coolDownEndTime:
-					self._update_remote_switch() #Stop charger in Cooldown phase
 					self._dbusservice['/State'] = state
+					self._update_remote_switch() #Stop charger in Cooldown phase
 					self.log_info ("starting cool-down")
 				#elif self._settings['cooldowntime'] != 0:
 				#	self.log_info ("skipping cool-down -- no AC load on generator")
