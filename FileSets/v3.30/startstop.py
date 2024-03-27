@@ -296,6 +296,7 @@ class StartStop(object):
 		self._instance = instance
 
 		# One second per retry
+		self.ERROR_TIMEOUT = 60
 		self.RETRIES_ON_ERROR = 300
 		self._testrun_soc_retries = 0
 		self._last_counters_check = 0
@@ -610,7 +611,7 @@ class StartStop(object):
 		# this is done because acInIsGenerator may change by an external transfer switch
 		# and we want an accurate picture of the cool down end time
 		#	based on the last time the generatot was loaded
-		if state == States.RUNNING and self._acInIsGenerator:
+		if state == States.RUNNING:
 			self._coolDownEndTime = self._currentTime + self._settings['cooldowntime']
 #### end GuiMods warm-up / cool-down
 
@@ -750,7 +751,7 @@ class StartStop(object):
 		self._acInIsGenerator = False	# covers all conditions that result in a return
 
 		state = self._dbusservice['/State']
-		if state in [States.STOPPED, States.COOLDOWN, States.WARMUP]:
+		if state in [States.STOPPED, States.STOPPING, States.COOLDOWN]: #States.WARMUP
 			self._reset_acpower_inverter_input()
 			return
 
@@ -769,7 +770,7 @@ class StartStop(object):
 		activein_connected = activein_state == 1
 
 #### GuiMods warm-up / cool-down
-		if self._settings['nogeneratoratacinalarm'] == 0:
+		if self._settings['nogeneratoratacinalarm'] == 0 and self._dbusservice['/GeneratorRunningState'] == 'R':
 			processAlarm = False
 			self._reset_acpower_inverter_input()
 		else:
@@ -786,7 +787,7 @@ class StartStop(object):
 		elif not processAlarm:
 			self._reset_acpower_inverter_input()
 			return
-		elif self._acpower_inverter_input['timeout'] < self.RETRIES_ON_ERROR:
+		elif self._acpower_inverter_input['timeout'] < self.ERROR_TIMEOUT:
 			self._acpower_inverter_input['timeout'] += 1
 		elif not self._acpower_inverter_input['unabletostart']:
 			self._acpower_inverter_input['unabletostart'] = True
@@ -1194,7 +1195,8 @@ class StartStop(object):
 
 	def _start_generator(self, condition):
 		state = self._dbusservice['/State']
-		remote_running = self._get_remote_switch_state()
+		#remote_running = self._get_remote_switch_state()
+		remote_running = state in (States.WARMUP, States.COOLDOWN, States.STOPPING, States.RUNNING)
 
 		# This function will start the generator in the case generator not
 		# already running. When differs, the RunningByCondition is updated
@@ -1233,6 +1235,7 @@ class StartStop(object):
 			if self._dbusservice['/RunningByCondition'] != condition:
 				self.log_info('Generator previously running by %s condition is now running by %s condition'
 							% (self._dbusservice['/RunningByCondition'], condition))
+			self._update_remote_switch()
 #### end GuiMods warm-up / cool-down
 
 
@@ -1242,17 +1245,20 @@ class StartStop(object):
 
 	def _stop_generator(self):
 		state = self._dbusservice['/State']
-		remote_running = self._get_remote_switch_state()
+		#remote_running = self._get_remote_switch_state()
 		running = state in (States.WARMUP, States.COOLDOWN, States.STOPPING, States.RUNNING)
+		remote_running = running
 
 		if running or remote_running:
 #### GuiMods warm-up / cool-down
 			if state == States.RUNNING:
 				state = States.COOLDOWN
 				if self._currentTime < self._coolDownEndTime:
+					self._update_remote_switch() #Stop charger in Cooldown phase
+					self._dbusservice['/State'] = state
 					self.log_info ("starting cool-down")
-				elif self._settings['cooldowntime'] != 0:
-					self.log_info ("skipping cool-down -- no AC load on generator")
+				#elif self._settings['cooldowntime'] != 0:
+				#	self.log_info ("skipping cool-down -- no AC load on generator")
 
 			# warm-up should also transition to stopping
 			#	cool-down time will have expired since it's set to 0 when starting
@@ -1331,7 +1337,8 @@ class StartStop(object):
 
 	def _update_remote_switch(self):
 		# Engine should be started in these states
-		v = self._dbusservice['/State'] in (States.RUNNING, States.WARMUP, States.COOLDOWN)
+		# We redefine engine as something else. We have charger connected to the relay, therefor it only needs to be on in the "Running" Condition
+		v = self._dbusservice['/State'] in (States.RUNNING, States.RUNNING) #Two times to keep the datatype
 		self._set_remote_switch_state(dbus.Int32(v, variant_level=1))
 #### GuiMods
 		if v == True:
