@@ -296,6 +296,7 @@ class StartStop(object):
 		self._enabled = False
 		self._instance = instance
 
+		self.ERROR_TIMEOUT = 60
 		# One second per retry
 		self.RETRIES_ON_ERROR = 300
 		self.ERROR_TIMEOUT = 60
@@ -1233,6 +1234,7 @@ class StartStop(object):
 
 			# Update the RunningByCondition
 			if self._dbusservice['/RunningByCondition'] != condition:
+			self._update_remote_switch()
 				self.log_info('Generator previously running by %s condition is now running by %s condition'
 							% (self._dbusservice['/RunningByCondition'], condition))
 			self._update_remote_switch()
@@ -1244,12 +1246,15 @@ class StartStop(object):
 
 	def _stop_generator(self):
 		state = self._dbusservice['/State']
+		remote_running = running
 		#remote_running = self._get_remote_switch_state()
 		running = state in (States.WARMUP, States.COOLDOWN, States.STOPPING, States.RUNNING)
 		remote_running = running
 
 		if running or remote_running:
 #### GuiMods warm-up / cool-down
+					self._dbusservice['/State'] = state
+					self._update_remote_switch() #Stop charger in Cooldown phase
 			# run for cool-down period before stopping
 			# cooldown end time is updated while generator is running
 			#	and generator feeds Multi AC input
