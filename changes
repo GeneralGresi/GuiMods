@@ -1,3 +1,25 @@
+v10.24:
+	add support for v3.40~10
+
+v10.23:
+	add support for v3.40~8
+
+v10.22:
+	fixed: relay overview not refreshning when number of relays changes (RemoteGPIO)
+
+v10.21:
+	removed v3.30 beta versions
+	add support for v3.31
+
+v10.20:
+	add support for v3.40~5
+
+v10.19:
+	fixed: systemcalc crash in v10.18 (v3.40~2 only)
+
+v10.18:
+	added support for v3.40~2
+
 v10.17:
 	fixed: GuiMods simple overview showing '--' for PV Inverter names
 

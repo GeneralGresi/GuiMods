@@ -1,1 +1,1 @@
-../v3.40~1/TileText.qml
+../v3.40~10/TileText.qml
