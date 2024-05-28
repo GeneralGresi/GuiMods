@@ -1,3 +1,32 @@
+v10.32:
+	add support fro v3.40~17
+
+v10.31:
+	add support for v3.40~16
+
+v10.30:
+	add support for v3.40~15
+	additional changes to PV Inverter code
+
+v10.29:
+	simplified PowerGauge code added for PV Inverters
+
+v10.28:
+	fixed: PV Inverter detail page not looking at phase count
+	fixed: PV Inverter detail page columns run together
+	fixed: PV Inverter tile does not always show correct gauge
+
+v10.27:
+	add support for v3.40~13
+	fixed: GuiMods Simple flow not showning tanks
+	remove local copy of HelperResources
+
+v10.26:
+	add support for v3.40~12 (never released)
+
+v10.25:
+	add support for v3.40~11 (never released)
+
 v10.24:
 	add support for v3.40~10
 
