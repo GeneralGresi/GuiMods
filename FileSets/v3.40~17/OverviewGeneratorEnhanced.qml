@@ -54,12 +54,13 @@ OverviewPage {
     property bool showServiceInfo: serviceCounterItem.valid && serviceInterval.valid && serviceInterval.value > 0
 	property bool serviceOverdue: showServiceInfo && serviceCounterItem.value < 0
 
-//////// add to display AC input ignored
-	VBusItem { id: ignoreAcInput1; bind: Utils.path(sys.vebusPrefix, "/Ac/State/IgnoreAcIn1") }
-	VBusItem { id: ignoreAcInput2; bind: Utils.path(sys.vebusPrefix, "/Ac/State/IgnoreAcIn2") }
-	VBusItem { id: acActiveInput; bind: Utils.path(sys.vebusPrefix, "/Ac/ActiveIn/ActiveInput") }
-	VBusItem { id: ac1source; bind: Utils.path("com.victronenergy.settings", "/Settings/SystemSetup/AcInput1") }
-	VBusItem { id: ac2source; bind: Utils.path("com.victronenergy.settings", "/Settings/SystemSetup/AcInput2") }
+	property VBusItem startSoc: VBusItem { bind: Utils.path(settingsBindPrefix, "/Soc/StartValue") }
+	property VBusItem stopSoc: VBusItem { bind: Utils.path(settingsBindPrefix, "/Soc/StopValue") }
+	property VBusItem conditionEnabledSoc: VBusItem { bind: Utils.path(settingsBindPrefix, "/Soc/Enabled") }
+
+	property VBusItem startBatVoltage: VBusItem { bind: Utils.path(settingsBindPrefix, "/BatteryVoltage/StartValue") }
+	property VBusItem stopBatVoltage: VBusItem { bind: Utils.path(settingsBindPrefix, "/BatteryVoltage/StopValue") }
+	property VBusItem conditionEnabledBatVoltage: VBusItem { bind: Utils.path(settingsBindPrefix, "/BatteryVoltage/Enabled") }
 
 	title: qsTr("Generator")
 
@@ -101,10 +102,18 @@ OverviewPage {
 
 	function formatTime (time)
 	{
-		if (time >= 3600)
-			return (time / 3600).toFixed(0) + " h"
-		else
-			return (time / 60).toFixed(0) + " m"
+		var calc_hours = Math.floor(time / 3600)
+		var calc_minutes = Math.floor(((time - (calc_hours * 3600))) / 60)
+		var calc_seconds = Math.floor(time - (calc_hours * 3600) - (calc_minutes * 60))
+		
+		var message = ""
+		if (calc_hours > 0) {
+			message = message + calc_hours + " h "
+		}
+		if (calc_minutes > 0 || calc_hours > 0) {
+			message = message + calc_minutes + " m "
+		}
+		return (message + calc_seconds + " s")
 	}
 
 	function stateDescription()
@@ -141,28 +150,28 @@ OverviewPage {
 				condition = ""
 				break;;
 			case 2:
-				condition = qsTr("Test run")
+				condition = qsTr("Testlauf")
 				break;;
 			case 3:
-				condition = qsTr("Loss of communication")
+				condition = qsTr("Kommunikationsverlust")
 				break;;
 			case 4:
-				condition = qsTr("SOC")
+				condition = qsTr("SOC Nied")
 				break;;
 			case 5:
-				condition = qsTr("AC load")
+				condition = qsTr("AC Last Hoch")
 				break;;
 			case 6:
-				condition = qsTr("Battery current")
+				condition = qsTr("Batterie Strom Hoch")
 				break;;
 			case 7:
-				condition = qsTr("Battery voltage")
+				condition = qsTr("Batterie Spannung Niedrig")
 				break;;
 			case 8:
-				condition = qsTr("Inverter temperature")
+				condition = qsTr("Wechselrichter Temperatur")
 				break;;
 			case 9:
-				condition = qsTr("Inverter overload")
+				condition = qsTr("Wechselrichter Überlast")
 				break;;
 			default:
 				condition = qsTr("???")
@@ -172,19 +181,19 @@ OverviewPage {
 			if (externalOverride)
 			{
 				if (running && ! manual)
-					return qsTr ("auto pending: ") + condition
+					return qsTr ("Starte Automatisch: ") + condition
 				else
 					return " "
 			}
 			else if (manual)
 			{
 				if (manualTimer.valid && manualTimer.value > 0)
-					return qsTr("Timed run")
+					return qsTr("Zeitbasierter Lauf")
 				else
-					return qsTr("Manual run")
+					return qsTr("Manueller Betrieb")
 			}
 			else if (running)
-				return qsTr ("auto run: ") + condition
+				return qsTr ("Automatischer Betrieb: ") + condition
 			else
 				return " "
 		}
@@ -195,7 +204,7 @@ OverviewPage {
 		if ( ! root.state.valid)
 			return ""
 		if (!nextTestRun.value)
-			return qsTr("No test run programmed")
+			return qsTr("Kein Testlauf programmiert")
 
 		var todayDate = new Date()
 		var nextDate = new Date(nextTestRun.value * 1000)
@@ -206,17 +215,17 @@ OverviewPage {
 			return " "
 		else if (todayDate.getDate() == nextDate.getDate() && todayDate.getMonth() == nextDate.getMonth())
 		{
-			message = qsTr("Next test run today %1").arg(
+			message = qsTr("Nächster Testlauf heute, %1").arg(
 						Qt.formatDateTime(nextDate, "hh:mm").toString())
 		}
 		else
 		{
-			message = qsTr("Next test run on %1").arg(
-						Qt.formatDateTime(nextDate, "dd/MM/yyyy").toString())
+			message = qsTr("Nächster Testlauf am %1").arg(
+						Qt.formatDateTime(nextDate, "dd.MM.yyyy").toString())
 						nextDateEnd.setSeconds(testRunDuration.value)		}
 
 		if (skipTestRun.value === 1)
-			message += qsTr(" \(skipped\)")
+			message += qsTr(" \(übersprungen\)")
 
 		return message
 	}
@@ -240,7 +249,7 @@ OverviewPage {
                 },
                 TileText {
                     width: imageTile.width - 5
-                    text: runningState.valid ? runningState.value == "R" ? "Running " : runningState.value == "S" ? "Stopped " : "" : ""
+                    text: runningState.valid ? runningState.value == "R" ? "In Betrieb " : runningState.value == "S" ? "Gestoppt " : "" : ""
                 }
         ]
 	}
@@ -261,28 +270,28 @@ OverviewPage {
 					var runPrefix
 					var message
 					if ( ! root.state.valid)
-						return qsTr ("Generator not connected")
+						return qsTr ("Generator nicht verbunden")
 					else if (root.state.value === 2)
-						runPrefix = qsTr("Warming up for ")
+						runPrefix = qsTr("Aufwärmen, Laufzeit: ")
+					else if (root.state.value === 3)
+                                                runPrefix = qsTr("Abkühlen, Laufzeit: ")
 					else
-						runPrefix = qsTr ("Running for ")
+						runPrefix = qsTr ("In Betrieb, Laufzeit: ")
 					if (!root.state.valid)
 						message = ""
 					else if (externalOverride)
-						message = qsTr("External Override - stopped")
-					else if (root.state.value === 3)
-						message = qsTr("Cool-down")
+						message = qsTr("Generator Fehler? - gestoppt")
 					else if (root.state.value === 4)
-						message = qsTr("Stopping")
+						message = qsTr("Stoppen")
 					else if (runningBy.value == 0)
-						message = qsTr ("Stopped")
+						message = qsTr ("Gestoppt")
 					else if ( ! runningTime.valid)
 						message = runPrefix + "??"
 					else
 					{
 						message = runPrefix + formatTime (runningTime.value) 
 						if (manualTimer.valid && manualTimer.value > 0)
-							message += qsTr ("  ends in ") + formatTime (manualTimer.value)
+							message += qsTr ("  endet in ") + formatTime (manualTimer.value)
 					}
 					return message
 				}
@@ -306,7 +315,7 @@ OverviewPage {
 			},
 			TileText
 			{
-				text: qsTr("\nQuiet hours");
+				text: qsTr("\nRuhezeiten");
 				width: statusTile.width - 5
 				font.bold: runningBy.valid && runningBy.value != 0
 				color: font.bold ? "yellow" : "white"
@@ -327,44 +336,77 @@ OverviewPage {
 	}
 
 	Tile {
-		id: acInTile
-		title: qsTr("GENERATOR POWER")
+		id: autoStartConditionsTile
+		title: qsTr("AutoStart Bedingungen")
 		width: 150
 		height: 136
 		color: "#82acde"
 		anchors { top: imageTile.bottom; left: parent.left }
-		visible: showAcIn
+		visible: autoStart.valid && autoStart.value === 1
 		values:
 		[
-			OverviewAcValuesEnhanced
+			Rectangle
 			{
-				connection: sys.genset
-				visible: sys.genset.power.valid				
+				width: parent.width
+				height: 3
+				color: "transparent"
 			},
 			TileText
 			{
-				width: acInTile.width - 5
-				text:
-				{
-					if (ac1source.valid && ac1source.value == 2)
-					{
-						if (ignoreAcInput1.valid && ignoreAcInput1.value == 1)
-							return qsTr ("\nAC In Ignored\nduring\ngenerator\nstart / stop")
-						else
-							return ""
+				width: autoStartConditionsTile.width - 5
+				text: {
+					if (conditionEnabledSoc.valid && conditionEnabledSoc.value === 1 && startSoc.valid) {
+						qsTr ("Start SOC: " + startSoc.value + " %")
+					} else {
+						qsTr ("")
 					}
-					else if (ac2source.valid && ac2source.value == 2)
-					{
-						if (ignoreAcInput2.valid && ignoreAcInput2.value == 1)
-							return qsTr ("\nAC In Ignored\nduring\ngenerator\nstart / stop")
-						else
-							return ""
-					}
-					else
-						return qsTr ("\nAC In\nis not\ngenerator")
 				}
-				visible: !sys.genset.power.valid
-			}			
+			},
+			TileText
+			{
+				width: autoStartConditionsTile.width - 5
+				text: {
+					if (conditionEnabledSoc.valid && conditionEnabledSoc.value === 1 && stopSoc.valid) {
+						qsTr ("Stop SOC: " + stopSoc.value + " %")
+					} else {
+						qsTr ("")
+					}
+				}
+			},
+			TileText
+			{
+				width: autoStartConditionsTile.width - 5
+				text: {
+					if (conditionEnabledBatVoltage.valid && conditionEnabledBatVoltage.value === 1 && startBatVoltage.valid) {
+						qsTr ("Start Bat V: " + startBatVoltage.value.toFixed(1) + " V")
+					} else {
+						qsTr ("")
+					}
+				}
+			},
+			TileText
+			{
+				width: autoStartConditionsTile.width - 5
+				text: {
+					if (conditionEnabledBatVoltage.valid && conditionEnabledBatVoltage.value === 1 && stopBatVoltage.valid) {
+						qsTr ("Stop Bat V: " + stopBatVoltage.value.toFixed(1) + " V")
+					} else {
+						qsTr ("")
+					}
+				}
+			},
+			Rectangle
+			{
+				width: parent.width
+				height: 8
+				color: "transparent"
+			},
+			TileText
+			{
+				width: autoStartConditionsTile.width - 5
+				text: qsTr ("Gresi was here")
+				visible: conditionEnabledSoc.valid && conditionEnabledSoc.value === 1 && startSoc.valid
+			}
 		]
 ////// add power bar graph
         PowerGauge
@@ -381,16 +423,15 @@ OverviewPage {
 			useInputCurrentLimit: true
             maxForwardPowerParameter: ""
             maxReversePowerParameter: ""
-            visible: showGauges && sys.genset.power.valid
+            visible: showGauges
         }
 	}
-
 //////// added to show alternator in place of AC generator
 	Tile {
 		id: alternatorTile
 		title: qsTr("ALTERNATOR POWER")
 		color: "#157894"
-		anchors.fill: acInTile
+		anchors.fill: autoStartConditionsTile
 		visible: showAlternator
 		values:
 		[
@@ -419,14 +460,14 @@ OverviewPage {
 
 	Tile {
 		id: runTimeTile
-		title: qsTr("RUN TIMES")
+		title: qsTr("Laufzeiten")
 		width: 140
-		anchors { top: acInTile.top; bottom: parent.bottom; left: acInTile.right }
+		anchors { top: autoStartConditionsTile.top; bottom: parent.bottom; left: autoStartConditionsTile.right }
 		values: [
 			TileText
 			{
 				width: runTimeTile.width - 5
-				text: qsTr ("Today")
+				text: qsTr ("Heute")
 			},
 			TileText {
 				width: runTimeTile.width - 5
@@ -441,7 +482,7 @@ OverviewPage {
 			TileText
 			{
 				width: runTimeTile.width - 5
-				text: qsTr ("Accumulated")
+				text: qsTr ("Gesamt")
 			},
 			TileText
 			{
@@ -467,7 +508,7 @@ OverviewPage {
 				width: runTimeTile.width - 5
 				visible: showServiceInfo
 				color: serviceOverdue ? "red" : "white"
-				text: serviceOverdue ? qsTr ("Service OVERDUE") : qsTr ("Service in")
+				text: serviceOverdue ? qsTr ("Service Überfällig") : qsTr ("Service in")
 			},
 			TileText
 			{
@@ -485,7 +526,7 @@ OverviewPage {
 		bindPrefix: root.bindPrefix
 		focus: root.active && autoStartSelected
 		connected: state.valid
-		tileHeight: acInTile.height / 2
+		tileHeight: autoStartConditionsTile.height / 2
 		anchors {
 			bottom: parent.bottom; bottomMargin: tileHeight
 			left: runTimeTile.right
@@ -499,7 +540,7 @@ OverviewPage {
 		bindPrefix: root.bindPrefix
 		focus: root.active && ! autoStartSelected
 		connected: state.valid
-		tileHeight: acInTile.height / 2
+		tileHeight: autoStartConditionsTile.height / 2
 		anchors {
 			bottom: parent.bottom
 			left: runTimeTile.right
