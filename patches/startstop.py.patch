@@ -1,275 +1,45 @@
-57,62c57,63
-< //////// add to display AC input ignored
-< 	VBusItem { id: ignoreAcInput1; bind: Utils.path(sys.vebusPrefix, "/Ac/State/IgnoreAcIn1") }
-< 	VBusItem { id: ignoreAcInput2; bind: Utils.path(sys.vebusPrefix, "/Ac/State/IgnoreAcIn2") }
-< 	VBusItem { id: acActiveInput; bind: Utils.path(sys.vebusPrefix, "/Ac/ActiveIn/ActiveInput") }
-< 	VBusItem { id: ac1source; bind: Utils.path("com.victronenergy.settings", "/Settings/SystemSetup/AcInput1") }
-< 	VBusItem { id: ac2source; bind: Utils.path("com.victronenergy.settings", "/Settings/SystemSetup/AcInput2") }
+298a299
+> 		self.ERROR_TIMEOUT = 60
+596c597
+< 		if state == States.RUNNING and self._acInIsGenerator:
 ---
-> 	property VBusItem startSoc: VBusItem { bind: Utils.path(settingsBindPrefix, "/Soc/StartValue") }
-> 	property VBusItem stopSoc: VBusItem { bind: Utils.path(settingsBindPrefix, "/Soc/StopValue") }
-> 	property VBusItem conditionEnabledSoc: VBusItem { bind: Utils.path(settingsBindPrefix, "/Soc/Enabled") }
-> 
-> 	property VBusItem startBatVoltage: VBusItem { bind: Utils.path(settingsBindPrefix, "/BatteryVoltage/StartValue") }
-> 	property VBusItem stopBatVoltage: VBusItem { bind: Utils.path(settingsBindPrefix, "/BatteryVoltage/StopValue") }
-> 	property VBusItem conditionEnabledBatVoltage: VBusItem { bind: Utils.path(settingsBindPrefix, "/BatteryVoltage/Enabled") }
-104,107c105,116
-< 		if (time >= 3600)
-< 			return (time / 3600).toFixed(0) + " h"
-< 		else
-< 			return (time / 60).toFixed(0) + " m"
+> 		if state == States.RUNNING:
+736c737
+< 		if state in [States.STOPPED, States.COOLDOWN, States.WARMUP]:
 ---
-> 		var calc_hours = Math.floor(time / 3600)
-> 		var calc_minutes = Math.floor(((time - (calc_hours * 3600))) / 60)
-> 		var calc_seconds = Math.floor(time - (calc_hours * 3600) - (calc_minutes * 60))
-> 		
-> 		var message = ""
-> 		if (calc_hours > 0) {
-> 			message = message + calc_hours + " h "
-> 		}
-> 		if (calc_minutes > 0 || calc_hours > 0) {
-> 			message = message + calc_minutes + " m "
-> 		}
-> 		return (message + calc_seconds + " s")
-144c153
-< 				condition = qsTr("Test run")
+> 		if state in [States.STOPPED, States.STOPPING, States.COOLDOWN]: #States.WARMUP
+755c756
+< 		if self._settings['nogeneratoratacinalarm'] == 0:
 ---
-> 				condition = qsTr("Testlauf")
-147c156
-< 				condition = qsTr("Loss of communication")
+> 		if self._settings['nogeneratoratacinalarm'] == 0 and self._dbusservice['/GeneratorRunningState'] == 'R':
+772c773
+< 		elif self._acpower_inverter_input['timeout'] < self.RETRIES_ON_ERROR:
 ---
-> 				condition = qsTr("Kommunikationsverlust")
-150c159
-< 				condition = qsTr("SOC")
+> 		elif self._acpower_inverter_input['timeout'] < self.ERROR_TIMEOUT:
+1180c1181,1182
+< 		remote_running = self._get_remote_switch_state()
 ---
-> 				condition = qsTr("SOC Nied")
-153c162
-< 				condition = qsTr("AC load")
+> 		#remote_running = self._get_remote_switch_state()
+> 		remote_running = state in (States.WARMUP, States.COOLDOWN, States.STOPPING, States.RUNNING)
+1218a1221
+> 			self._update_remote_switch()
+1228c1231
+< 		remote_running = self._get_remote_switch_state()
 ---
-> 				condition = qsTr("AC Last Hoch")
-156c165
-< 				condition = qsTr("Battery current")
+> 		#remote_running = self._get_remote_switch_state()
+1229a1233
+> 		remote_running = running
+1235a1240,1241
+> 					self._dbusservice['/State'] = state
+> 					self._update_remote_switch() #Stop charger in Cooldown phase
+1237,1238c1243,1244
+< 				elif self._settings['cooldowntime'] != 0:
+< 					self.log_info ("skipping cool-down -- no AC load on generator")
 ---
-> 				condition = qsTr("Batterie Strom Hoch")
-159c168
-< 				condition = qsTr("Battery voltage")
+> 				#elif self._settings['cooldowntime'] != 0:
+> 				#	self.log_info ("skipping cool-down -- no AC load on generator")
+1320c1326,1327
+< 		v = self._dbusservice['/State'] in (States.RUNNING, States.WARMUP, States.COOLDOWN)
 ---
-> 				condition = qsTr("Batterie Spannung Niedrig")
-162c171
-< 				condition = qsTr("Inverter temperature")
----
-> 				condition = qsTr("Wechselrichter Temperatur")
-165c174
-< 				condition = qsTr("Inverter overload")
----
-> 				condition = qsTr("Wechselrichter Überlast")
-175c184
-< 					return qsTr ("auto pending: ") + condition
----
-> 					return qsTr ("Starte Automatisch: ") + condition
-182c191
-< 					return qsTr("Timed run")
----
-> 					return qsTr("Zeitbasierter Lauf")
-184c193
-< 					return qsTr("Manual run")
----
-> 					return qsTr("Manueller Betrieb")
-187c196
-< 				return qsTr ("auto run: ") + condition
----
-> 				return qsTr ("Automatischer Betrieb: ") + condition
-198c207
-< 			return qsTr("No test run programmed")
----
-> 			return qsTr("Kein Testlauf programmiert")
-209c218
-< 			message = qsTr("Next test run today %1").arg(
----
-> 			message = qsTr("Nächster Testlauf heute, %1").arg(
-214,215c223,224
-< 			message = qsTr("Next test run on %1").arg(
-< 						Qt.formatDateTime(nextDate, "dd/MM/yyyy").toString())
----
-> 			message = qsTr("Nächster Testlauf am %1").arg(
-> 						Qt.formatDateTime(nextDate, "dd.MM.yyyy").toString())
-219c228
-< 			message += qsTr(" \(skipped\)")
----
-> 			message += qsTr(" \(übersprungen\)")
-243c252
-<                     text: runningState.valid ? runningState.value == "R" ? "Running " : runningState.value == "S" ? "Stopped " : "" : ""
----
->                     text: runningState.valid ? runningState.value == "R" ? "In Betrieb " : runningState.value == "S" ? "Gestoppt " : "" : ""
-264c273
-< 						return qsTr ("Generator not connected")
----
-> 						return qsTr ("Generator nicht verbunden")
-266c275,277
-< 						runPrefix = qsTr("Warming up for ")
----
-> 						runPrefix = qsTr("Aufwärmen, Laufzeit: ")
-> 					else if (root.state.value === 3)
->                                                 runPrefix = qsTr("Abkühlen, Laufzeit: ")
-268c279
-< 						runPrefix = qsTr ("Running for ")
----
-> 						runPrefix = qsTr ("In Betrieb, Laufzeit: ")
-272,274c283
-< 						message = qsTr("External Override - stopped")
-< 					else if (root.state.value === 3)
-< 						message = qsTr("Cool-down")
----
-> 						message = qsTr("Generator Fehler? - gestoppt")
-276c285
-< 						message = qsTr("Stopping")
----
-> 						message = qsTr("Stoppen")
-278c287
-< 						message = qsTr ("Stopped")
----
-> 						message = qsTr ("Gestoppt")
-285c294
-< 							message += qsTr ("  ends in ") + formatTime (manualTimer.value)
----
-> 							message += qsTr ("  endet in ") + formatTime (manualTimer.value)
-309c318
-< 				text: qsTr("\nQuiet hours");
----
-> 				text: qsTr("\nRuhezeiten");
-330,331c339,340
-< 		id: acInTile
-< 		title: qsTr("GENERATOR POWER")
----
-> 		id: autoStartConditionsTile
-> 		title: qsTr("AutoStart Bedingungen")
-336c345
-< 		visible: showAcIn
----
-> 		visible: autoStart.valid && autoStart.value === 1
-339c348
-< 			OverviewAcValuesEnhanced
----
-> 			Rectangle
-341,342c350,352
-< 				connection: sys.genset
-< 				visible: sys.genset.power.valid				
----
-> 				width: parent.width
-> 				height: 3
-> 				color: "transparent"
-346,354c356,361
-< 				width: acInTile.width - 5
-< 				text:
-< 				{
-< 					if (ac1source.valid && ac1source.value == 2)
-< 					{
-< 						if (ignoreAcInput1.valid && ignoreAcInput1.value == 1)
-< 							return qsTr ("\nAC In Ignored\nduring\ngenerator\nstart / stop")
-< 						else
-< 							return ""
----
-> 				width: autoStartConditionsTile.width - 5
-> 				text: {
-> 					if (conditionEnabledSoc.valid && conditionEnabledSoc.value === 1 && startSoc.valid) {
-> 						qsTr ("Start SOC: " + startSoc.value + " %")
-> 					} else {
-> 						qsTr ("")
-356,361c363,372
-< 					else if (ac2source.valid && ac2source.value == 2)
-< 					{
-< 						if (ignoreAcInput2.valid && ignoreAcInput2.value == 1)
-< 							return qsTr ("\nAC In Ignored\nduring\ngenerator\nstart / stop")
-< 						else
-< 							return ""
----
-> 				}
-> 			},
-> 			TileText
-> 			{
-> 				width: autoStartConditionsTile.width - 5
-> 				text: {
-> 					if (conditionEnabledSoc.valid && conditionEnabledSoc.value === 1 && stopSoc.valid) {
-> 						qsTr ("Stop SOC: " + stopSoc.value + " %")
-> 					} else {
-> 						qsTr ("")
-363,364d373
-< 					else
-< 						return qsTr ("\nAC In\nis not\ngenerator")
-366,367c375,409
-< 				visible: !sys.genset.power.valid
-< 			}			
----
-> 			},
-> 			TileText
-> 			{
-> 				width: autoStartConditionsTile.width - 5
-> 				text: {
-> 					if (conditionEnabledBatVoltage.valid && conditionEnabledBatVoltage.value === 1 && startBatVoltage.valid) {
-> 						qsTr ("Start Bat V: " + startBatVoltage.value.toFixed(1) + " V")
-> 					} else {
-> 						qsTr ("")
-> 					}
-> 				}
-> 			},
-> 			TileText
-> 			{
-> 				width: autoStartConditionsTile.width - 5
-> 				text: {
-> 					if (conditionEnabledBatVoltage.valid && conditionEnabledBatVoltage.value === 1 && stopBatVoltage.valid) {
-> 						qsTr ("Stop Bat V: " + stopBatVoltage.value.toFixed(1) + " V")
-> 					} else {
-> 						qsTr ("")
-> 					}
-> 				}
-> 			},
-> 			Rectangle
-> 			{
-> 				width: parent.width
-> 				height: 8
-> 				color: "transparent"
-> 			},
-> 			TileText
-> 			{
-> 				width: autoStartConditionsTile.width - 5
-> 				text: qsTr ("Gresi was here")
-> 				visible: conditionEnabledSoc.valid && conditionEnabledSoc.value === 1 && startSoc.valid
-> 			}
-384c426
-<             visible: showGauges && sys.genset.power.valid
----
->             visible: showGauges
-387d428
-< 
-393c434
-< 		anchors.fill: acInTile
----
-> 		anchors.fill: autoStartConditionsTile
-422c463
-< 		title: qsTr("RUN TIMES")
----
-> 		title: qsTr("Laufzeiten")
-424c465
-< 		anchors { top: acInTile.top; bottom: parent.bottom; left: acInTile.right }
----
-> 		anchors { top: autoStartConditionsTile.top; bottom: parent.bottom; left: autoStartConditionsTile.right }
-429c470
-< 				text: qsTr ("Today")
----
-> 				text: qsTr ("Heute")
-444c485
-< 				text: qsTr ("Accumulated")
----
-> 				text: qsTr ("Gesamt")
-470c511
-< 				text: serviceOverdue ? qsTr ("Service OVERDUE") : qsTr ("Service in")
----
-> 				text: serviceOverdue ? qsTr ("Service Überfällig") : qsTr ("Service in")
-488c529
-< 		tileHeight: acInTile.height / 2
----
-> 		tileHeight: autoStartConditionsTile.height / 2
-502c543
-< 		tileHeight: acInTile.height / 2
----
-> 		tileHeight: autoStartConditionsTile.height / 2
+> 		# We redefine engine as something else. We have charger connected to the relay, therefor it only needs to be on in the "Running" Condition
+> 		v = self._dbusservice['/State'] in (States.RUNNING, States.RUNNING) #Two times to keep the datatype
