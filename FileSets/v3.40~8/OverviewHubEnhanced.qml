@@ -43,6 +43,8 @@ OverviewPage {
 	property double alternatorFlow: showAlternator ? noNoise (sys.alternator.power) : 0
 	property bool showAcLoads: isMulti || sys.acLoad.power.valid || veDirectInverterService != ""
 	property bool showDcSystem: (hasDcSystemItem.valid && hasDcSystemItem.value > 0) || showAllTiles
+	property bool hasInverter: false
+	property bool showInverter: hasInverter || inverterService != "" || showAllTiles
 
 	property bool hasAcSolarOnAcIn1: sys.pvOnAcIn1.power.valid
 	property bool hasAcSolarOnAcIn2: sys.pvOnAcIn2.power.valid
@@ -335,6 +337,8 @@ OverviewPage {
 			top: parent.top; topMargin: 3
 		}
 		inverterService: root.inverterService
+		opacity: showAcInput ? 1 : disabledTileOpacity
+		visible: showAcInput || showInactiveTiles
 ////// add power bar graph
 		PowerGaugeMulti
 		{
@@ -347,7 +351,7 @@ OverviewPage {
 				horizontalCenter: parent.horizontalCenter
 			}
 			inverterService: root.inverterService
-			visible: showGauges
+			visible: showGauges && showInverter
 		}
 		DetailTarget { id: multiTarget;  detailsPage: "DetailInverter.qml"; width: 60; height: 60 }
 	}
@@ -366,6 +370,7 @@ OverviewPage {
 	{
 		text: wallClock.time
 		font.pixelSize: 18
+		color: showInverter || darkMode ? "white" : "black"
 		anchors
 		{
 			top: multi.top; topMargin: 96
@@ -977,7 +982,7 @@ OverviewPage {
 		visible: showAcInput
 		ballCount: 2
 		path: straight
-		active: root.active
+		active: root.active && showAcInput && showInverter
 		value: flow(sys.acInput ? sys.acInput.power : 0)
 
 		anchors {
@@ -990,7 +995,7 @@ OverviewPage {
 		id: multiToAcLoads
 		ballCount: 2
 		path: straight
-		active: root.active && ( showAcLoads || showAllTiles )
+		active: root.active && ( showAcLoads && showInverter )
 		value: flow(sys.acLoad.power)
 
 		anchors {
@@ -1004,7 +1009,7 @@ OverviewPage {
 		id: pvInverterToMulti
 		ballCount: 3
 		path: corner
-		active: root.active && showAcSolar
+		active: root.active && showAcSolar && showInverter
 		value: Utils.sign(noNoise(sys.pvOnAcOut.power) + noNoise(sys.pvOnAcIn1.power) + noNoise(sys.pvOnAcIn2.power))
 
 		anchors {
@@ -1029,7 +1034,7 @@ OverviewPage {
 		id: dcBus2
 		ballCount: 2
 		path: straight
-		active: root.active
+		active: root.active && ( showInverter || showDcSolar )
 		value: -Utils.sign (noNoise (sys.pvCharger.power) + noNoise (sys.vebusDc.power))
 		startPointVisible: false
 		endPointVisible: false
@@ -1065,7 +1070,7 @@ OverviewPage {
 		id: multiToDcConnect
 		ballCount: showTanksTemps ? 2 : 4
 		path: straight
-		active: root.active
+		active: root.active && showInverter
 		value: -flow(sys.vebusDc.power);
 		startPointVisible: false
 
@@ -1099,7 +1104,7 @@ OverviewPage {
 		id: batteryToDcBus2
 		ballCount: 1
 		path: straight
-		active: root.active
+		active: root.active && ( showInverter || showDcSolar )
 		value: Utils.sign(noNoise(sys.pvCharger.power) + noNoise(sys.vebusDc.power) + alternatorFlow)
 		startPointVisible: false
 
@@ -1255,6 +1260,7 @@ OverviewPage {
 			tempsModel.append({serviceName: service.name})
 			break;;
 		case DBusService.DBUS_SERVICE_MULTI:
+			hasInverter = true
 			root.tempServiceName = service.name
 			if (temperatureItem.valid && showBatteryTemp)
 			{
@@ -1264,6 +1270,7 @@ OverviewPage {
 			break;;
 //////// add for VE.Direct inverters
 		case DBusService.DBUS_SERVICE_INVERTER:
+			hasInverter = true
 			if (veDirectInverterService == "")
 				veDirectInverterService = service.name;
 			break;;
@@ -1271,6 +1278,8 @@ OverviewPage {
 //////// add for PV CHARGER voltage and current display
 		case DBusService.DBUS_SERVICE_SOLAR_CHARGER:
 		case DBusService.DBUS_SERVICE_MULTI_RS:
+			if ( service.type == DBusService.DBUS_SERVICE_MULTI_RS )
+				hasInverter = true
 			numberOfPvChargers++
 			if (numberOfPvChargers === 1)
 				pvChargerPrefix1 = service.name;
@@ -1325,6 +1334,7 @@ OverviewPage {
 		numberOfPvInverters = 0
 		numberOfAlternators = 0
 		veDirectInverterService = ""
+		hasInverter = false
 		pvChargerPrefix1 = ""
 		pvChargerPrefix2 = ""
 		pvChargerPrefix3 = ""

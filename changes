@@ -1,5 +1,42 @@
+v10.45:
+	more fixes for missing Multi tile
+
+v10.44:
+	add support for v3.40~29
+
+v10.43:
+	fixed: PV chargers, temps, multi not always showing up in v10.41/42
+
+v10.42:
+	fixed: gui crash in v10.41
+
+v10.41:
+	fixed: multi tile is sometimes hidden when inverter switches off
+
+v10.40:
+	add support for v3.40~27
+
+v10.39:
+	hide multi tile if no inverter
+	add support for v3.40~26
+
+v10.38:
+	add support for v3.33
+
+v10.36:
+	add support for v3.40~21
+
+v10.35:
+	add support for v3.40~23
+
+v10.34:
+	add support for v3.33~1 and v3.40~20
+
+v10.33:
+	add support for v3.40~18
+
 v10.32:
-	add support fro v3.40~17
+	add support for v3.40~17
 
 v10.31:
 	add support for v3.40~16
