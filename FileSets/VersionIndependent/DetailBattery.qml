@@ -27,7 +27,6 @@ MbPage
     property real essDimOpacity: 0.2
 
     VBusItem { id: timeToGo;  bind: Utils.path(systemPrefix,"/Dc/Battery/TimeToGo") }
-    VBusItem { id: consumedAh;  bind: Utils.path(systemPrefix,"/Dc/Battery/ConsumedAmphours") }
 
     VBusItem { id: systemType; bind: Utils.path(systemPrefix, "/SystemType") }
     VBusItem { id: lowSoc; bind: Utils.path(systemPrefix, "/SystemState/LowSoc") }
@@ -40,8 +39,16 @@ MbPage
     VBusItem { id: batteryServiceItem; bind: Utils.path(systemPrefix, "/Dc/Battery/BatteryService") }
 
 	property string batteryService: batteryServiceItem.valid ? batteryServiceItem.value : ""
-	VBusItem { id: batteryCapacityItem; bind: Utils.path(batteryService, "/InstalledCapacity") }
-	property bool showAhRemaining: batteryCapacityItem.valid
+
+	VBusItem { id: remainingItem;  bind: Utils.path(batteryService,"/Capacity") }
+	property bool showRemaining: remainingItem.valid
+	VBusItem { id: installedCapacityItem; bind: Utils.path(batteryService, "/InstalledCapacity") }
+	property bool calculateConsumed: remainingItem.valid && installedCapacityItem.valid
+
+	VBusItem { id: consumedItem;  bind: Utils.path(systemPrefix,"/Dc/Battery/ConsumedAmphours") }
+	property real consumed: calculateConsumed ? installedCapacityItem.value - remainingItem.value : consumedItem.value
+	property bool showConsumed: calculateConsumed || consumedItem.valid
+
 	VBusItem { id: minimumCellVoltageItem; bind: Utils.path(batteryService, "/System/MinCellVoltage") }
 	VBusItem { id: maximumCellVoltageItem; bind: Utils.path(batteryService, "/System/MaxCellVoltage") }
 	property bool showCellVoltages: minimumCellVoltageItem.valid && maximumCellVoltageItem.valid
@@ -117,16 +124,16 @@ MbPage
         {
             Text { font.pixelSize: 12; font.bold: true; color: "black"
                     width: rowTitleWidth; horizontalAlignment: Text.AlignRight
-                    text: qsTr ("Consumed") }
+                    text: showConsumed ? qsTr ("Consumed") : "" }
             Text { font.pixelSize: 12; font.bold: true; color: "black"
                     width: tableColumnWidth; horizontalAlignment: Text.AlignHCenter
-                    text: EnhFmt.formatVBusItemAbs (consumedAh, "AH") }
+                    text: showConsumed ? EnhFmt.formatValue (consumed, "AH") : "" }
             Text { font.pixelSize: 12; font.bold: true; color: "black"
                     width: rowTitleWidth; horizontalAlignment: Text.AlignRight
-                    text: showAhRemaining ? qsTr ("Remaining") : "" }
+                    text: showRemaining ? qsTr ("Remaining") : "" }
 			Text { font.pixelSize: 12; font.bold: true; color: "black"
                     width: tableColumnWidth; horizontalAlignment: Text.AlignHCenter;
-                    text: showAhRemaining ? EnhFmt.formatValue (batteryCapacityItem.value - consumedAh.value, "AH") : ""
+                    text: showRemaining ? EnhFmt.formatValue (remainingItem.value, "AH") : ""
                     
 			}
         }

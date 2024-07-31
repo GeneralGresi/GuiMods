@@ -1,3 +1,63 @@
+v10.62:
+	fixed: battery detail consumed and remaining incorrect
+
+v10.61:
+	another cut at battery detail consumed remaining
+
+v10.60:
+	fixed (maybe): battery detail not showing consumed and remaining with some batteries
+
+v10.59:
+	add support for v3.50~5
+	add support for v3.50~7
+
+v10.59:
+	add support for v3.50~3
+
+10.56/10.57: (10.56 had a version of v10.5)
+	add support for v3.40
+	dropping support for firmware earlier than v3.10
+	dropping support for v3.40 beta versions
+	moved velib_python in SetupHelper to a single version
+
+v10.55:
+	add support for v3.40~39
+	moved more replacements to patched files
+	use SetupHelper velib_python if it exists
+
+v10.54:
+	fixed: white screen with firmware prior to v3.0
+
+v10.53:
+	add support for v3.40~36
+	switched several files to patched to minimize changes as firmware versions are released
+
+v10.52:
+	add support for v3.40~35
+
+
+v10.51:
+	add support for v3.40~34
+
+v10.50
+	add support for v3.40~33
+
+v10.49:
+	add support for v3.40~32
+
+v10.48:
+	changed behavior: previously, if the generator auto starts then auto start is disabled
+		the generator will restart if auto start is reenabled
+		unless all stop conditions have been met
+	now, reenabling auto start will NOT restart the generator
+		if no start conditions are active
+
+v10.47:
+	more fixes for missing Multi tile	
+
+v10.46:
+	add support for v3.40~30
+
 v10.45:
 	more fixes for missing Multi tile
 

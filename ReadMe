@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Custom Changes:
 	Added function to alert if generator is not detected running (State = 'R')
 	Generator Page translated to German
@@ -7,6 +8,11 @@ Recent changes:
 	ExtTransferSwitch is now obsolete and will be uninstalled by GuiMods
 
 GuiMods has been revived with combined functionality of the original GuiMods and GuiMods2
+=======
+NOTE: Support for firmware prior to v3.10 has been dropped starting with GuiMods v10.56
+	if you are running older versions, change the branch/tag to preV3.10support
+	for any packages you wish to run on that firmware
+>>>>>>> upstream/main
 
 
 This package provides the following modifications to the VenusOS GUI:
