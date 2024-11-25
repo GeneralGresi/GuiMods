@@ -1,3 +1,57 @@
+v10.78:
+	add support for v3.52
+
+v10.77:
+	add support for v3.52~2
+
+v10.76:
+	add support for v3.52~1
+
+v10.75:
+	added support for v3.51
+
+v10.74:
+	fixed: generator overview stock/enhanced not working
+
+v10.73:
+	fixed: incomplete file set for v3.50
+
+v10.72:
+	fixed: not showing GuiMods flow overview pages
+
+v10.71:
+	fixed: white screen (GUI crash)
+	fixed: light/dark selection not shown at bottom of screen
+
+v10.70:
+	fixed: PackageManager crash (bad GuiMods version string)
+
+v10.69:
+	add support for v3.50 and v3.51~2
+	removed support for v3.50 beta versions
+		revert to GuiMods v10.68 to support those
+	Note: there is no support for New UI but config possible in Classic UI
+
+v10.68:
+	improve contrast in Relay Overview in dark mode
+
+v10.67:
+	add support for v3.50~25
+
+v10.66:
+	add support for v3.50~22
+
+v10.65:
+	add support for v3.50~20
+	fixed: inverter detail DC line formatting
+
+v10.64:
+	fixed: Relay info not centered in Relay Overview tiles on v3.50~13
+	add support for v3.50~13 and ~14
+
+v10.63:
+	add support for v3.41
+
 v10.62:
 	fixed: battery detail consumed and remaining incorrect
 
