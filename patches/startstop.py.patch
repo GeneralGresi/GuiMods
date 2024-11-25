@@ -1,5 +1,5 @@
 diff --git a/FileSets/v3.52/startstop.py b/FileSets/v3.52/startstop.py
-index 244de09..4b28034 100644
+index 244de09..04eb8a5 100644
 --- a/FileSets/v3.52/startstop.py
 +++ b/FileSets/v3.52/startstop.py
 @@ -297,6 +297,7 @@ class StartStop(object):
@@ -56,14 +56,14 @@ index 244de09..4b28034 100644
  
  		# This function will start the generator in the case generator not
  		# already running. When differs, the RunningByCondition is updated
-@@ -1301,6 +1303,7 @@ class StartStop(object):
- 			# Update the RunningByCondition
+@@ -1302,6 +1304,7 @@ class StartStop(object):
  			if self._dbusservice['/RunningByCondition'] != condition:
  				self.log_info('Generator previously running by %s condition is now running by %s condition'
-+			self._update_remote_switch()
  							% (self._dbusservice['/RunningByCondition'], condition))
++			self._update_remote_switch()
  #### end GuiMods warm-up / cool-down
  
+ 		self._dbusservice['/RunningByCondition'] = condition
 @@ -1309,17 +1312,20 @@ class StartStop(object):
  
  	def _stop_generator(self):
