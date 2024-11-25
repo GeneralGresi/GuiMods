@@ -812,7 +812,7 @@ class StartStop(object):
 		activein_connected = activein_state == 1
 
 #### GuiMods warm-up / cool-down
-		if self._settings['nogeneratoratacinalarm'] == 0 and self._dbusservice['/GeneratorRunningState'] == 'R':
+		if self._settings['nogeneratoratacinalarm'] == 0 and self._generator_running:
 			processAlarm = False
 			self._reset_acpower_inverter_input()
 		else:
