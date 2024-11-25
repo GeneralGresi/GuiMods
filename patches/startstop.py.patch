@@ -1,5 +1,5 @@
 diff --git a/FileSets/v3.52/startstop.py b/FileSets/v3.52/startstop.py
-index 244de09..04eb8a5 100644
+index 244de09..dc8e083 100644
 --- a/FileSets/v3.52/startstop.py
 +++ b/FileSets/v3.52/startstop.py
 @@ -297,6 +297,7 @@ class StartStop(object):
@@ -33,7 +33,7 @@ index 244de09..04eb8a5 100644
  
  #### GuiMods warm-up / cool-down
 -		if self._settings['nogeneratoratacinalarm'] == 0:
-+		if self._settings['nogeneratoratacinalarm'] == 0 and self._dbusservice['/GeneratorRunningState'] == 'R':
++		if self._settings['nogeneratoratacinalarm'] == 0 and self._generator_running:
  			processAlarm = False
  			self._reset_acpower_inverter_input()
  		else:
