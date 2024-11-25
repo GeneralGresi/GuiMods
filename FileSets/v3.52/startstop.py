@@ -1303,8 +1303,8 @@ class StartStop(object):
 			# Update the RunningByCondition
 			if self._dbusservice['/RunningByCondition'] != condition:
 				self.log_info('Generator previously running by %s condition is now running by %s condition'
-			self._update_remote_switch()
 							% (self._dbusservice['/RunningByCondition'], condition))
+			self._update_remote_switch()
 #### end GuiMods warm-up / cool-down
 
 		self._dbusservice['/RunningByCondition'] = condition
