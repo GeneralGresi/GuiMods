@@ -1,1 +1,1 @@
-../v3.52/TileDigIn.qml
+../v3.60~17/TileDigIn.qml

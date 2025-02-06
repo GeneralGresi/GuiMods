@@ -1,1 +1,1 @@
-../v3.52/DetailAcInput.qml
+../v3.60~17/DetailAcInput.qml
