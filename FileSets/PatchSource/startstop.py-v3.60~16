@@ -311,13 +311,13 @@ class StartStop(object):
 		self._instance = instance
 
 		# One second per retry
-		self.ERROR_TIMEOUT = 60
 		self.RETRIES_ON_ERROR = 300
 		self._testrun_soc_retries = 0
 		self._last_counters_check = 0
 
 		# Two different starttime values.
 		# starttime_fb is set by the modules (relay.py, genset.py) and will be set to the current time when
+		self.ERROR_TIMEOUT = 60
 		# the feedback mechanism (digital input / `/StatusCode`) indicates that the generator is running.
 		# The other one is set by startstop when commanding the module to start the generator and is used by the
 		# warm-up mechanism to ensure warm-up finishes without needing feedback that the generator has actually started.
@@ -850,7 +850,7 @@ class StartStop(object):
 		activein_connected = activein_state == 1
 
 #### GuiMods warm-up / cool-down
-		if self._settings['nogeneratoratacinalarm'] == 0 and self._dbusservice['/GeneratorRunningState'] == 'R':
+		if self._settings['nogeneratoratacinalarm'] == 0 and self._generator_running:
 			processAlarm = False
 			self._reset_acpower_inverter_input()
 		else:
