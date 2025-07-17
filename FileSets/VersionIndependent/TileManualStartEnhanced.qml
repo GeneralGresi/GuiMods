@@ -32,7 +32,7 @@ ListView {
 	VisibleItemModel {
 		TileSpinBox {
 			id: timerTile
-			title: qsTr("STOP TIMER")
+			title: qsTr("Zeitbasierter bis")
 			width: root.width
 			height: editMode ? Math.max (contentHeight + 2, tileHeight) : 0
 			readOnly: manualRunActive
@@ -46,8 +46,8 @@ ListView {
 			// only allowed if auto start is enabled
 			min: autoStartEnabled ? -60 : 0
 			color: startTile.color
-			description: localValue > 0 ? qsTr("Run for:") : localValue < 0 ? qsTr ("Run until:") :""
-			extraDescription: autoStartEnabled && localValue > 0 ? qsTr("Generator will continue running if other conditions are reached") : ""
+			description: localValue > 0 ? qsTr("Ein für:") : localValue < 0 ? qsTr ("Ein bis:") :""
+			extraDescription: autoStartEnabled && localValue > 0 ? qsTr("Generator weiter in Betrieb falls andere Bedingungen erfüllt") : ""
 			bind: Utils.path(root.bindPrefix, "/ManualStartTimer")
 			buttonColor: "#e02e1c"
 
@@ -59,9 +59,9 @@ ListView {
 					if (val > 0)
 						return Utils.secondsToNoSecsString(val);
 					if (val < 0)
-						return qsTr ("all auto stop\nconditions\nare met")
+						return qsTr ("Alle Autostop\nBedingungen\nsind erfüllt")
 					else
-						return qsTr("Stop manually")
+						return qsTr("Manueller stop")
 				}
 				return val
 			}
@@ -72,9 +72,9 @@ ListView {
 			title:
 			{
 				if (manualRunActive)
-					return qsTr ("MANUAL START - ACTIVE")
+					return qsTr ("MANUELLER LAUF - AKTIV")
 				else
-					return qsTr ("MANUAL START - INACTIVE")
+					return qsTr ("MANUELLER LAUF - INAKTIV")
 			}
 			width: root.width
 			height: root.startCountdown ? contentHeight : tileHeight
@@ -86,7 +86,7 @@ ListView {
 			function edit(isMouse)
 			{
 				if (!connected) {
-					toast.createToast(qsTr("Generator not connected."))
+					toast.createToast(qsTr("Generator nicht verbunden"))
 					return
 				}
 				if (buttonState || startCountdown)
@@ -109,9 +109,9 @@ ListView {
 					text:
 					{
 						if (root.activeFocus)
-							return qsTr("press Center button to:")
+							return qsTr("Drücken für")
 						else
-							return qsTr ("press Down button to:")
+							return qsTr ("Drücken für")
 					}
 					width: root.width - 6
 					visible: !root.startCountdown || (root.startCountdown && !buttonState || countdownText.visible)
@@ -119,10 +119,8 @@ ListView {
 				TileTextMultiLine {
 					text:
 					{
-						if (! root.activeFocus)
-							return qsTr ("SELECT")
-						else if (root.startCountdown)
-							return qsTr ("CANCEL")
+						if (root.startCountdown)
+							return qsTr ("ABBRUCH")
 						else if (buttonState)
 							return qsTr("STOP")
 						else
@@ -137,20 +135,20 @@ ListView {
 					text:
 					{
 						if (buttonState)
-							return qsTr("Stopping in %1 seconds").arg(root.count)
+							return qsTr("Stoppen in %1 s").arg(root.count)
 						else
-							return qsTr("Starting in %1 seconds").arg(root.count)
+							return qsTr("Startet in %1 s").arg(root.count)
 					}
 					width: root.width - 6
 					visible: root.startCountdown
 				},
 				TileTextMultiLine {
-					text: qsTr("Already running, use to make sure generator will run for a fixed time")
+					text: qsTr("Bereit in Betrieb, benutzen um Mindestlaufzeit zu Gewährleisten")
 					visible: state.value > 0 && !manualRunActive
 					width: root.width - 6
 				},
 				TileTextMultiLine {
-					text: autoStartEnabled ? qsTr("Generator won't stop if other conditions are reached") : ""
+					text: autoStartEnabled ? qsTr("Generator weiter in Betrieb falls andere Bedingungen erfüllt") : ""
 					visible: root.startCountdown && manualRunActive
 					width: root.width - 6
 				}
