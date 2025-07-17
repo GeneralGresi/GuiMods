@@ -1,0 +1,267 @@
+63a64,71
+> 	property VBusItem startSoc: VBusItem { bind: Utils.path(settingsBindPrefix, "/Soc/StartValue") }
+> 	property VBusItem stopSoc: VBusItem { bind: Utils.path(settingsBindPrefix, "/Soc/StopValue") }
+> 	property VBusItem conditionEnabledSoc: VBusItem { bind: Utils.path(settingsBindPrefix, "/Soc/Enabled") }
+> 
+> 	property VBusItem startBatVoltage: VBusItem { bind: Utils.path(settingsBindPrefix, "/BatteryVoltage/StartValue") }
+> 	property VBusItem stopBatVoltage: VBusItem { bind: Utils.path(settingsBindPrefix, "/BatteryVoltage/StopValue") }
+> 	property VBusItem conditionEnabledBatVoltage: VBusItem { bind: Utils.path(settingsBindPrefix, "/BatteryVoltage/Enabled") }
+> 
+104,107c112,123
+< 		if (time >= 3600)
+< 			return (time / 3600).toFixed(0) + " h"
+< 		else
+< 			return (time / 60).toFixed(0) + " m"
+---
+> 		var calc_hours = Math.floor(time / 3600)
+> 		var calc_minutes = Math.floor(((time - (calc_hours * 3600))) / 60)
+> 		var calc_seconds = Math.floor(time - (calc_hours * 3600) - (calc_minutes * 60))
+> 		
+> 		var message = ""
+> 		if (calc_hours > 0) {
+> 			message = message + calc_hours + " h "
+> 		}
+> 		if (calc_minutes > 0 || calc_hours > 0) {
+> 			message = message + calc_minutes + " m "
+> 		}
+> 		return (message + calc_seconds + " s")
+144c160
+< 				condition = qsTr("Test run")
+---
+> 				condition = qsTr("Testlauf")
+147c163
+< 				condition = qsTr("Loss of communication")
+---
+> 				condition = qsTr("Kommunikationsverlust")
+150c166
+< 				condition = qsTr("SOC")
+---
+> 				condition = qsTr("SOC Nied")
+153c169
+< 				condition = qsTr("AC load")
+---
+> 				condition = qsTr("AC Last Hoch")
+156c172
+< 				condition = qsTr("Battery current")
+---
+> 				condition = qsTr("Batterie Strom Hoch")
+159c175
+< 				condition = qsTr("Battery voltage")
+---
+> 				condition = qsTr("Batterie Spannung Niedrig")
+162c178
+< 				condition = qsTr("Inverter temperature")
+---
+> 				condition = qsTr("Wechselrichter Temperatur")
+165c181
+< 				condition = qsTr("Inverter overload")
+---
+> 				condition = qsTr("Wechselrichter Überlast")
+175c191
+< 					return qsTr ("auto pending: ") + condition
+---
+> 					return qsTr ("Starte Automatisch: ") + condition
+182c198
+< 					return qsTr("Timed run")
+---
+> 					return qsTr("Zeitbasierter Lauf")
+184c200
+< 					return qsTr("Manual run")
+---
+> 					return qsTr("Manueller Betrieb")
+187c203
+< 				return qsTr ("auto run: ") + condition
+---
+> 				return qsTr ("Automatischer Betrieb: ") + condition
+198c214
+< 			return qsTr("No test run programmed")
+---
+> 			return qsTr("Kein Testlauf programmiert")
+209c225
+< 			message = qsTr("Next test run today %1").arg(
+---
+> 			message = qsTr("Nächster Testlauf heute, %1").arg(
+214,215c230,231
+< 			message = qsTr("Next test run on %1").arg(
+< 						Qt.formatDateTime(nextDate, "dd/MM/yyyy").toString())
+---
+> 			message = qsTr("Nächster Testlauf am %1").arg(
+> 						Qt.formatDateTime(nextDate, "dd.MM.yyyy").toString())
+219c235
+< 			message += qsTr(" \(skipped\)")
+---
+> 			message += qsTr(" \(übersprungen\)")
+243c259
+<                     text: runningState.valid ? runningState.value == "R" ? "Running " : runningState.value == "S" ? "Stopped " : "" : ""
+---
+>                     text: runningState.valid ? runningState.value == "R" ? "In Betrieb " : runningState.value == "S" ? "Gestoppt " : "" : ""
+264c280
+< 						return qsTr ("Generator not connected")
+---
+> 						return qsTr ("Generator nicht verbunden")
+266c282,284
+< 						runPrefix = qsTr("Warming up for ")
+---
+> 						runPrefix = qsTr("Aufwärmen, Laufzeit: ")
+> 					else if (root.state.value === 3)
+>                                                 runPrefix = qsTr("Abkühlen, Laufzeit: ")
+268c286
+< 						runPrefix = qsTr ("Running for ")
+---
+> 						runPrefix = qsTr ("In Betrieb, Laufzeit: ")
+272,274c290
+< 						message = qsTr("External Override - stopped")
+< 					else if (root.state.value === 3)
+< 						message = qsTr("Cool-down")
+---
+> 						message = qsTr("Generator Fehler? - gestoppt")
+276c292
+< 						message = qsTr("Stopping")
+---
+> 						message = qsTr("Stoppen")
+278c294
+< 						message = qsTr ("Stopped")
+---
+> 						message = qsTr ("Gestoppt")
+285c301
+< 							message += qsTr ("  ends in ") + formatTime (manualTimer.value)
+---
+> 							message += qsTr ("  endet in ") + formatTime (manualTimer.value)
+309c325
+< 				text: qsTr("\nQuiet hours");
+---
+> 				text: qsTr("\nRuhezeiten");
+328a345
+> 
+330,331c347,348
+< 		id: acInTile
+< 		title: qsTr("GENERATOR POWER")
+---
+> 		id: autoStartConditionsTile
+> 		title: qsTr("AutoStart Bedingungen")
+336c353
+< 		visible: showAcIn
+---
+> 		visible: autoStart.valid && autoStart.value === 1
+339c356
+< 			OverviewAcValuesEnhanced
+---
+> 			Rectangle
+341,342c358,360
+< 				connection: sys.genset
+< 				visible: sys.genset.power.valid				
+---
+> 				width: parent.width
+> 				height: 3
+> 				color: "transparent"
+346,354c364,369
+< 				width: acInTile.width - 5
+< 				text:
+< 				{
+< 					if (ac1source.valid && ac1source.value == 2)
+< 					{
+< 						if (ignoreAcInput1.valid && ignoreAcInput1.value == 1)
+< 							return qsTr ("\nAC In Ignored\nduring\ngenerator\nstart / stop")
+< 						else
+< 							return ""
+---
+> 				width: autoStartConditionsTile.width - 5
+> 				text: {
+> 					if (conditionEnabledSoc.valid && conditionEnabledSoc.value === 1 && startSoc.valid) {
+> 						qsTr ("Start SOC: " + startSoc.value + " %")
+> 					} else {
+> 						qsTr ("")
+356,361c371,380
+< 					else if (ac2source.valid && ac2source.value == 2)
+< 					{
+< 						if (ignoreAcInput2.valid && ignoreAcInput2.value == 1)
+< 							return qsTr ("\nAC In Ignored\nduring\ngenerator\nstart / stop")
+< 						else
+< 							return ""
+---
+> 				}
+> 			},
+> 			TileText
+> 			{
+> 				width: autoStartConditionsTile.width - 5
+> 				text: {
+> 					if (conditionEnabledSoc.valid && conditionEnabledSoc.value === 1 && stopSoc.valid) {
+> 						qsTr ("Stop SOC: " + stopSoc.value + " %")
+> 					} else {
+> 						qsTr ("")
+363,364d381
+< 					else
+< 						return qsTr ("\nAC In\nis not\ngenerator")
+366,367c383,417
+< 				visible: !sys.genset.power.valid
+< 			}			
+---
+> 			},
+> 			TileText
+> 			{
+> 				width: autoStartConditionsTile.width - 5
+> 				text: {
+> 					if (conditionEnabledBatVoltage.valid && conditionEnabledBatVoltage.value === 1 && startBatVoltage.valid) {
+> 						qsTr ("Start Bat V: " + startBatVoltage.value.toFixed(1) + " V")
+> 					} else {
+> 						qsTr ("")
+> 					}
+> 				}
+> 			},
+> 			TileText
+> 			{
+> 				width: autoStartConditionsTile.width - 5
+> 				text: {
+> 					if (conditionEnabledBatVoltage.valid && conditionEnabledBatVoltage.value === 1 && stopBatVoltage.valid) {
+> 						qsTr ("Stop Bat V: " + stopBatVoltage.value.toFixed(1) + " V")
+> 					} else {
+> 						qsTr ("")
+> 					}
+> 				}
+> 			},
+> 			Rectangle
+> 			{
+> 				width: parent.width
+> 				height: 8
+> 				color: "transparent"
+> 			},
+> 			TileText
+> 			{
+> 				width: autoStartConditionsTile.width - 5
+> 				text: qsTr ("Gresi was here")
+> 				visible: conditionEnabledSoc.valid && conditionEnabledSoc.value === 1 && startSoc.valid
+> 			}
+368a419
+> 
+393c444
+< 		anchors.fill: acInTile
+---
+> 		anchors.fill: autoStartConditionsTile
+422c473
+< 		title: qsTr("RUN TIMES")
+---
+> 		title: qsTr("Laufzeiten")
+424c475
+< 		anchors { top: acInTile.top; bottom: parent.bottom; left: acInTile.right }
+---
+> 		anchors { top: autoStartConditionsTile.top; bottom: parent.bottom; left: autoStartConditionsTile.right }
+429c480
+< 				text: qsTr ("Today")
+---
+> 				text: qsTr ("Heute")
+444c495
+< 				text: qsTr ("Accumulated")
+---
+> 				text: qsTr ("Gesamt")
+470c521
+< 				text: serviceOverdue ? qsTr ("Service OVERDUE") : qsTr ("Service in")
+---
+> 				text: serviceOverdue ? qsTr ("Service Überfällig") : qsTr ("Service in")
+488c539
+< 		tileHeight: acInTile.height / 2
+---
+> 		tileHeight: autoStartConditionsTile.height / 2
+502c553
+< 		tileHeight: acInTile.height / 2
+---
+> 		tileHeight: autoStartConditionsTile.height / 2

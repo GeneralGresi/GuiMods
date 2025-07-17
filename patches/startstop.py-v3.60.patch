@@ -1,0 +1,37 @@
+336a337
+> 		self.ERROR_TIMEOUT = 60
+704c705
+< 		if state == States.RUNNING and self._acInIsGenerator:
+---
+> 		if state == States.RUNNING:
+936c937
+< 		if self._settings['nogeneratoratacinalarm'] == 0:
+---
+> 		if self._settings['nogeneratoratacinalarm'] == 0 and self._generator_running:
+1428c1429,1430
+< 		remote_running = self._get_remote_switch_state()
+---
+> 		#remote_running = self._get_remote_switch_state()
+> 		remote_running = state in (States.WARMUP, States.COOLDOWN, States.STOPPING, States.RUNNING)
+1467a1470
+> 			self._update_remote_switch()
+1475c1478
+< 		remote_running = self._get_remote_switch_state()
+---
+> 		#remote_running = self._get_remote_switch_state()
+1476a1480
+> 		remote_running = running
+1482a1487,1488
+> 					self._dbusservice['/State'] = state
+> 					self._update_remote_switch() #Stop charger in Cooldown phase
+1484,1485c1490,1491
+< 				elif self._settings['cooldowntime'] != 0:
+< 					self.log_info ("skipping cool-down -- no AC load on generator")
+---
+> 				#elif self._settings['cooldowntime'] != 0:
+> 				#	self.log_info ("skipping cool-down -- no AC load on generator")
+1567c1573,1574
+< 		v = self._dbusservice['/State'] in (States.RUNNING, States.WARMUP, States.COOLDOWN)
+---
+> 		# We redefine engine as something else. We have charger connected to the relay, therefor it only needs to be on in the "Running" Condition
+> 		v = self._dbusservice['/State'] in (States.RUNNING, States.RUNNING) #Two times to keep the datatype
