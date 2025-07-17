@@ -1,0 +1,14 @@
+*** /dev/null
+--- /dev/null
+***************
+*** 259
+-                     text: runningState.valid ? runningState.value == "R" ? "Running " : runningState.value == "S" ? "Stopped " : "" : ""
+--- 275 -----
++                     text: runningState.valid ? runningState.value == "R" ? "In Betrieb " : runningState.value == "S" ? "Gestoppt " : "" : ""
+***************
+*** 290,292
+- 						message = qsTr("External Override - stopped")
+- 					else if (root.state.value === 3)
+- 						message = qsTr("Cool-down")
+--- 308 -----
++ 						message = qsTr("Generator Fehler? - gestoppt")

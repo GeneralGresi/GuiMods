@@ -1,0 +1,20 @@
+--- startstop.py
++++ startstop.py
+@@ -793,7 +794,7 @@ class StartStop(object):
+ 		self._acInIsGenerator = False	# covers all conditions that result in a return
+ 
+ 		state = self._dbusservice['/State']
+-		if state in [States.STOPPED, States.COOLDOWN, States.WARMUP]:
++		if state in [States.STOPPED, States.STOPPING, States.COOLDOWN]: #States.WARMUP
+ 			self._reset_acpower_inverter_input()
+ 			return
+ 
+@@ -829,7 +830,7 @@ class StartStop(object):
+ 		elif not processAlarm:
+ 			self._reset_acpower_inverter_input()
+ 			return
+-		elif self._acpower_inverter_input['timeout'] < self.RETRIES_ON_ERROR:
++		elif self._acpower_inverter_input['timeout'] < self.ERROR_TIMEOUT:
+ 			self._acpower_inverter_input['timeout'] += 1
+ 		elif not self._acpower_inverter_input['unabletostart']:
+ 			self._acpower_inverter_input['unabletostart'] = True
