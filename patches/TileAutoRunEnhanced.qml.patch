@@ -1,0 +1,68 @@
+diff --git a/FileSets/VersionIndependent/TileAutoRunEnhanced.qml b/FileSets/VersionIndependent/TileAutoRunEnhanced.qml
+index 5e4c01f..21f123c 100644
+--- a/FileSets/VersionIndependent/TileAutoRunEnhanced.qml
++++ b/FileSets/VersionIndependent/TileAutoRunEnhanced.qml
+@@ -32,9 +32,9 @@ ListView {
+ 			title:
+ 			{
+ 				if (autoStartEnabled)
+-					return qsTr("AUTO START - ENABLED")
++					return qsTr("AUTO START - Bereit")
+ 				else
+-					return qsTr ("AUTO START - DISABLED")
++					return qsTr ("AUTO START - Deaktiviert")
+ 			}
+ 			width: root.width
+ 			height: root.startCountdown ? contentHeight : tileHeight
+@@ -45,7 +45,7 @@ ListView {
+ 			{
+ 				if (!connected)
+ 				{
+-					toast.createToast(qsTr("Generator not connected."))
++					toast.createToast(qsTr("Generator nicht verbunden"))
+ 					return
+ 				}
+ 				else
+@@ -66,9 +66,9 @@ ListView {
+ 					text:
+ 					{
+ 						if (root.activeFocus)
+-							return qsTr("press Center button to:")
++							return qsTr("Drücken für")
+ 						else
+-							return qsTr ("press Up button to:")
++							return qsTr ("Drücken für")
+ 					}
+ 					width: root.width - 6
+ 					visible: !root.startCountdown || (root.startCountdown && !buttonState || countdownText.visible)
+@@ -76,14 +76,12 @@ ListView {
+ 				TileTextMultiLine {
+ 					text:
+ 					{
+-						if (! root.activeFocus)
+-							return qsTr ("SELECT")
+-						else if (root.startCountdown)
+-							return qsTr ("CANCEL")
++						if (root.startCountdown)
++							return qsTr ("ABBRUCH")
+ 						else if (buttonState)
+-							return qsTr("DISABLE")
++							return qsTr("DEAKTIVIEREN")
+ 						else
+-							return qsTr("ENABLE")
++							return qsTr("AKTIVIEREN")
+ 					}
+ 					font.pixelSize: 22
+ 					verticalAlignment: Text.AlignTop
+@@ -94,9 +92,9 @@ ListView {
+ 					text:
+ 					{
+ 						if (buttonState)
+-							return qsTr("Disabling in %1 seconds").arg(root.count)
++							return qsTr("Deaktiviert in %1 s").arg(root.count)
+ 						else
+-							return qsTr("Enabling in %1 seconds").arg(root.count)
++							return qsTr("Aktiviert in %1 s").arg(root.count)
+ 					}
+ 					width: root.width - 6
+ 					visible: root.startCountdown
